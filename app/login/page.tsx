@@ -19,7 +19,7 @@ function LoginForm() {
       const supabase = createClient();
       const { error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (authError) throw authError;
-      window.location.assign(search.get("next")?.startsWith("/") ? search.get("next")! : "/dashboard");
+      window.location.assign(search.get("next")?.startsWith("/") && !search.get("next")?.startsWith("//") ? search.get("next")! : "/dashboard");
     } catch (err) { setError(err instanceof Error ? err.message : "Unable to sign in."); }
     finally { setBusy(false); }
   }
