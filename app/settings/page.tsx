@@ -12,14 +12,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: { s
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) redirect("/login");
-  const [{ data: profile }, { data: preferences }, { data: deletion }, { data: exports }] = await Promise.all([
+  const [{ data: profile }, { data: preferences }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
     supabase.from("user_preferences").select("*").eq("user_id", user.id).maybeSingle(),
-    supabase.from("account_deletion_requests").select("status,requested_at").eq("user_id", user.id).maybeSingle(),
-    supabase.from("data_export_requests").select("id,status,requested_at").eq("user_id", user.id).order("requested_at",{ascending:false}).limit(5)
   ]);
   const { data: avatarData } = profile?.avatar_url ? await supabase.storage.from("builderos-avatars").createSignedUrl(profile.avatar_url, 3600) : { data: null };
-  const saved = searchParams.saved ? "Your settings have been saved." : searchParams.requested === "export" ? "Your data export request has been received." : searchParams.requested === "deletion" ? "Your account deletion request has been received. Your account has not been deleted." : searchParams.cancelled ? "Your deletion request was cancelled." : "";
+  const saved = searchParams.saved ? "Your settings have been saved." : "";
   const prefs = preferences ?? { product_updates:true, security_alerts:true, submission_notifications:true, weekly_summary:false, marketing_emails:false, theme:"system" };
   return <main className="settings-shell">
     <header className="settings-top"><Link className="dash-brand" href="/dashboard"><span><Layers3 size={18}/></span>builder<span>OS</span></Link><Link href="/dashboard" className="settings-back"><ArrowLeft size={15}/> Dashboard</Link></header>
@@ -47,7 +45,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: { s
         </section>
         <section className="settings-card" id="security"><div className="settings-card-title"><ShieldCheck size={18}/><div><h3>Security</h3><p>Protect access to your account and projects.</p></div></div><div className="settings-info-row"><span><strong>Verified account email</strong><small>{user.email}</small></span><span className="settings-badge">Authentication managed by Supabase</span></div><SecurityControls email={user.email ?? ""} mode="password"/><div className="settings-info-row"><span><strong>Session management</strong><small>Sign out of this device from the dashboard. Use Supabase account security controls to revoke other sessions.</small></span><span className="settings-muted">Current session</span></div></section>
         <section className="settings-card" id="privacy"><div className="settings-card-title"><LockKeyhole size={18}/><div><h3>Privacy & your data</h3><p>Request a copy of your personal BuilderOS account data.</p></div></div><div className="settings-info-row"><span><strong>Export your data</strong><small>Request an export of your profile, workspace and account records.</small></span><a className="settings-secondary" href="/api/account/export" download><FileDown size={15}/> Download my data</a></div>
-          {exports?.length ? <div className="settings-history"><strong>Export requests</strong>{exports.map(item=><p key={item.id}>{new Date(item.requested_at).toLocaleString()} <span>{item.status}</span></p>)}</div>:null}
           <div className="settings-legal-links"><Link href="/privacy">Privacy notice</Link><Link href="/terms">Terms of service</Link><Link href="/cookies">Cookie notice</Link><Link href="/acceptable-use">Acceptable use</Link></div>
         </section>
         <section className="settings-card settings-danger" id="danger"><div className="settings-card-title"><Trash2 size={18}/><div><h3>Delete account</h3><p>Permanent deletion is available after workspace ownership is transferred.</p></div></div><SecurityControls email={user.email ?? ""} mode="delete"/></section>
