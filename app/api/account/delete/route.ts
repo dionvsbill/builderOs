@@ -20,11 +20,17 @@ export async function POST(request:Request) {
  const {data:owned,error:ownedError}=await admin.from("workspaces").select("id,name").eq("owner_id",user.id).limit(1);
  if(ownedError)return NextResponse.json({error:"Could not check workspace ownership. No changes were made."},{status:500});
  if(owned?.length)return NextResponse.json({error:"Transfer ownership or delete your workspace before deleting this account. Your workspace must not be orphaned."},{status:409});
- const {data:avatarFiles,error:avatarListError}=await admin.storage.from("builderos-avatars").list(user.id,{limit:100});
- if(avatarListError)return NextResponse.json({error:"Could not safely prepare account files for deletion. No changes were made."},{status:500});
- if(avatarFiles?.length){const paths=avatarFiles.map(file=>user.id+"/"+file.name);const {error:storageError}=await admin.storage.from("builderos-avatars").remove(paths);if(storageError)return NextResponse.json({error:"Could not remove profile files. No account data was deleted."},{status:500});}
+ const avatarPaths:string[]=[];
+ for(let offset=0;offset<5000;offset+=1000){
+  const {data,error:listError}=await admin.storage.from("builderos-avatars").list(user.id,{limit:1000,offset});
+  if(listError)return NextResponse.json({error:"Could not safely prepare account files for deletion. No changes were made."},{status:500});
+  avatarPaths.push(...(data??[]).filter(file=>file.name).map(file=>user.id+"/"+file.name));
+  if(!data||data.length<1000)break;
+ }
  const {error:deleteError}=await admin.auth.admin.deleteUser(user.id,false);
  if(deleteError)return NextResponse.json({error:"Account deletion failed. No success was reported; contact support if this persists."},{status:500});
- await supabase.auth.signOut();
- return NextResponse.json({success:true});
+ let cleanupWarning=false;
+ if(avatarPaths.length){const {error:storageError}=await admin.storage.from("builderos-avatars").remove(avatarPaths);cleanupWarning=Boolean(storageError);}
+ await supabase.auth.signOut({scope:"local"});
+ return NextResponse.json({success:true,cleanupWarning});
 }
