@@ -35,3 +35,74 @@ using (owner_id = (select auth.uid()));
 -- A workspace owner can read the workspace row immediately after inserting it,
 -- then create exactly their own owner membership. Other member invitations must
 -- be performed by a separately authorized server-side team-management flow.
+
+-- The membership helper is intentionally narrow: it can only answer whether
+-- the caller is a member of a supplied workspace. Keep execution away from anon.
+revoke execute on function public.is_workspace_member(uuid) from public, anon;
+grant execute on function public.is_workspace_member(uuid) to authenticated;
+
+-- Viewers may read content but must not mutate projects or page documents.
+drop policy if exists "workspace editors can create projects" on public.projects;
+create policy "workspace editors can create projects"
+on public.projects for insert to authenticated
+with check (
+  created_by = (select auth.uid())
+  and exists (
+    select 1 from public.workspace_members wm
+    where wm.workspace_id = workspace_id
+      and wm.user_id = (select auth.uid())
+      and wm.role in ('owner','admin','editor')
+  )
+);
+
+drop policy if exists "workspace editors can update projects" on public.projects;
+create policy "workspace editors can update projects"
+on public.projects for update to authenticated
+using (
+  exists (
+    select 1 from public.workspace_members wm
+    where wm.workspace_id = workspace_id
+      and wm.user_id = (select auth.uid())
+      and wm.role in ('owner','admin','editor')
+  )
+)
+with check (
+  exists (
+    select 1 from public.workspace_members wm
+    where wm.workspace_id = workspace_id
+      and wm.user_id = (select auth.uid())
+      and wm.role in ('owner','admin','editor')
+  )
+);
+
+drop policy if exists "members can create pages" on public.pages;
+create policy "workspace editors can create pages"
+on public.pages for insert to authenticated
+with check (
+  exists (
+    select 1 from public.projects p
+    join public.workspace_members wm on wm.workspace_id = p.workspace_id
+    where p.id = project_id and wm.user_id = (select auth.uid())
+      and wm.role in ('owner','admin','editor')
+  )
+);
+
+drop policy if exists "members can update pages" on public.pages;
+create policy "workspace editors can update pages"
+on public.pages for update to authenticated
+using (
+  exists (
+    select 1 from public.projects p
+    join public.workspace_members wm on wm.workspace_id = p.workspace_id
+    where p.id = project_id and wm.user_id = (select auth.uid())
+      and wm.role in ('owner','admin','editor')
+  )
+)
+with check (
+  exists (
+    select 1 from public.projects p
+    join public.workspace_members wm on wm.workspace_id = p.workspace_id
+    where p.id = project_id and wm.user_id = (select auth.uid())
+      and wm.role in ('owner','admin','editor')
+  )
+);
