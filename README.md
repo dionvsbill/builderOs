@@ -46,7 +46,7 @@ npm run build
 5. In Supabase Authentication URL Configuration, set the Site URL to your app origin and add `http://localhost:3000/auth/callback` plus your production `https://YOUR-RENDER-DOMAIN/auth/callback` to the allowed redirect URLs.
 6. Enable email/password authentication. If email confirmation is enabled, new users must confirm their email before signing in.
 
-Never expose service-role/secret, SMTP, Paystack secret or Stripe secret keys in browser code. The auth middleware deliberately does not bypass login when Supabase environment variables are missing; configure the variables before treating the app as protected.
+Never expose service-role/secret, SMTP, Paystack secret or Stripe secret keys in browser code. When Supabase environment variables are missing, the middleware skips session enforcement so the editor can still load locally; authentication is not protected until both public Supabase variables are configured.
 
 ## Product roadmap
 
