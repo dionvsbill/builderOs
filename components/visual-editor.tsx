@@ -12,7 +12,7 @@ import {
   ArrowDown, ArrowRight, ArrowUp, Bell, ChevronDown, ChevronRight, CircleHelp,
   Code2, Eye, FileText, Globe2, Grid2X2, Image as ImageIcon, Layers3, Monitor,
   MousePointer2, Plus, Redo2, Search, Settings2, Smartphone, Sparkles, Tablet,
-  Type, Undo2, WandSparkles, X, GripVertical, Trash2, History
+  Type, Undo2, WandSparkles, X, GripVertical, Trash2, History, Menu, SlidersHorizontal
 } from "lucide-react";
 
 type BlockKind = "heading" | "text" | "button" | "image" | "section";
@@ -59,6 +59,7 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
   const [selected, setSelected] = useState("hero-title");
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [activeTab, setActiveTab] = useState<"add" | "layers">("add");
+  const [mobilePanel, setMobilePanel] = useState<"elements" | "properties" | null>(null);
   const [siteName, setSiteName] = useState(initialSiteName ?? "Untitled website");
   const [revision, setRevision] = useState(initialRevision);
   const [saveError, setSaveError] = useState("");
@@ -251,7 +252,7 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
     </header>
     {historyOpen && <div className="revision-popover"><div className="revision-popover-head"><strong>Version history</strong><button type="button" onClick={()=>setHistoryOpen(false)} aria-label="Close history"><X size={15}/></button></div>{historyLoading?<p>Loading revisions…</p>:revisions.length===0?<p>No saved revisions yet. Make a change to create the first version.</p>:<div className="revision-list">{revisions.map(item=><div className="revision-item" key={item.id}><span><strong>Version {item.revision}</strong><small>{new Date(item.created_at).toLocaleString()}</small></span><button type="button" onClick={()=>restoreRevision(item.id)} disabled={historyLoading||item.revision===revision}>Restore</button></div>)}</div>}{restoreError&&<p className="revision-error">{restoreError}</p>}</div>}
     <div className="workspace">
-      <aside className="left-panel">
+      <aside className={`left-panel ${mobilePanel === "elements" ? "mobile-open" : ""}`}>
         <div className="panel-tabs">
           <button className={activeTab === "add" ? "panel-tab active" : "panel-tab"} onClick={() => setActiveTab("add")}><Plus size={16} />Add</button>
           <button className={activeTab === "layers" ? "panel-tab active" : "panel-tab"} onClick={() => setActiveTab("layers")}><Layers3 size={16} />Layers</button>
@@ -282,7 +283,7 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
         </div></div>
         <div className="statusbar"><span><span className="status-dot" />{saved ? (projectId ? "Document saved to cloud" : "Document saved locally") : saveError || "Saving changes…"}</span><span>Drag the grip on any selected block to reorder it</span></div>
       </section>
-      <aside className="right-panel">
+      <aside className={`right-panel ${mobilePanel === "properties" ? "mobile-open" : ""}`}>
         <div className="right-panel-header"><div><h2>Properties</h2><p>{current ? current.label : "Select an element"}</p></div><button className="subtle-icon"><Settings2 size={17} /></button></div>
         {current ? <div className="properties-content">
           <div className="property-group"><div className="property-title">CONTENT</div><label className="field-label">Text content</label><textarea className="content-input" value={current.content} onChange={(e) => updateBlock(current.id, { content: e.target.value })} rows={4} /></div>
@@ -292,5 +293,10 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
         </div> : <div className="empty-properties"><MousePointer2 size={22} /><strong>Nothing selected</strong><span>Select an element on the canvas to edit its properties.</span></div>}
       </aside>
     </div>
+    <nav className="mobile-editor-nav" aria-label="Editor navigation">
+      <button type="button" className={mobilePanel === "elements" ? "active" : ""} onClick={() => { setMobilePanel(mobilePanel === "elements" ? null : "elements"); setActiveTab("add"); }}><Menu size={17} />Elements</button>
+      <button type="button" className={!mobilePanel ? "active" : ""} onClick={() => setMobilePanel(null)}><Monitor size={17} />Canvas</button>
+      <button type="button" className={mobilePanel === "properties" ? "active" : ""} onClick={() => setMobilePanel(mobilePanel === "properties" ? null : "properties")}><SlidersHorizontal size={17} />Properties</button>
+    </nav>
   </main>;
 }
