@@ -117,8 +117,8 @@ export function AIStudio({ currentBlocks, onApply, onClose }: {
     }
   }
 
-  return <div role="dialog" aria-modal="true" aria-labelledby="ai-studio-title" style={{ position: "fixed", inset: 0, zIndex: 100, background: "#05080dcc", display: "grid", placeItems: "center", padding: 14 }}>
-    <section style={{ width: "min(100%, 680px)", maxHeight: "min(88vh, 820px)", overflow: "auto", background: "#111923", color: "#edf1f7", border: "1px solid #344257", borderRadius: 16, boxShadow: "0 25px 90px #000b", padding: 22 }}>
+  return <div className="ai-studio-overlay" role="dialog" aria-modal="true" aria-labelledby="ai-studio-title" style={{ position: "fixed", inset: 0, zIndex: 100, background: "#05080dcc", display: "grid", placeItems: "center", padding: 14 }}>
+    <section className="ai-studio-dialog" style={{ width: "min(100%, 680px)", maxHeight: "min(88vh, 820px)", overflow: "auto", background: "#111923", color: "#edf1f7", border: "1px solid #344257", borderRadius: 16, boxShadow: "0 25px 90px #000b", padding: 22 }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
         <div><div style={{ color: "#9aafff", fontSize: 10, letterSpacing: 1.6, fontWeight: 800 }}>BROWSER-BASED GENERATIVE DESIGN</div><h2 id="ai-studio-title" style={{ margin: "7px 0 0", fontSize: 21 }}>BuilderOS AI Studio</h2></div>
         <button onClick={onClose} aria-label="Close AI Studio" style={buttonStyle}>Close</button>
