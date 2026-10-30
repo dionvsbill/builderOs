@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors
 } from "@dnd-kit/core";
@@ -70,6 +70,8 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
   const [hydrated, setHydrated] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const current = useMemo(() => blocks.find((b) => b.id === selected) ?? null, [blocks, selected]);
+  const latestSnapshotRef = useRef("");
+  latestSnapshotRef.current = JSON.stringify({ blocks, siteName });
 
   useEffect(() => {
     if (!projectId) {
@@ -91,6 +93,7 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
 
   useEffect(() => {
     if (!hydrated || saved) return;
+    const snapshot = JSON.stringify({ blocks, siteName });
     const timer = window.setTimeout(async () => {
       const document = { version: 1, children: blocks };
       try {
@@ -112,6 +115,7 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
             return;
           }
           if (typeof result.revision === "number") setRevision(result.revision);
+          if (latestSnapshotRef.current !== snapshot) return;
           setSaveError("");
           setSaved(true);
         } catch (error) {
