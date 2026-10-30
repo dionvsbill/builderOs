@@ -33,3 +33,13 @@ export async function PATCH(request:Request,{params}:{params:{projectId:string;p
  }
  return NextResponse.json({success:true,revision:newRevision});
 }
+export async function DELETE(_request:Request,{params}:{params:{projectId:string;pageId:string}}){
+ const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();
+ if(!user)return NextResponse.json({error:"Authentication required."},{status:401});
+ const {data:page}=await supabase.from("pages").select("id,path").eq("id",params.pageId).eq("project_id",params.projectId).maybeSingle();
+ if(!page)return NextResponse.json({error:"Page not found or access denied."},{status:404});
+ if(page.path==="/")return NextResponse.json({error:"The home page cannot be deleted."},{status:400});
+ const {error}=await supabase.from("pages").delete().eq("id",page.id).eq("project_id",params.projectId);
+ if(error)return NextResponse.json({error:"Page could not be deleted."},{status:400});
+ return NextResponse.json({success:true});
+}
