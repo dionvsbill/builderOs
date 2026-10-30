@@ -40,7 +40,12 @@ export async function POST(request: Request, { params }: { params: { type: strin
   const fields = ((form.schema as { fields?: Field[] }).fields ?? []);
   const clean: Record<string, string | boolean | number> = {};
   for (const field of fields) {
-    const rawValue = body.values[field.id] ?? body.values[field.label];
+    const normalizedLabel = field.label.toLowerCase().replace(/[^a-z]/g, "");
+    const aliases = normalizedLabel.includes("name") ? ["name", "full_name", "fullName"]
+      : normalizedLabel.includes("email") ? ["email"]
+      : normalizedLabel.includes("phone") || normalizedLabel.includes("mobile") ? ["phone", "mobile"]
+      : normalizedLabel.includes("message") || normalizedLabel.includes("enquiry") || normalizedLabel.includes("inquiry") ? ["message", "enquiry", "inquiry"] : [];
+    const rawValue = body.values[field.id] ?? body.values[field.label] ?? aliases.map(alias => body.values?.[alias]).find(value => value !== undefined);
     let value: string | boolean | number = typeof rawValue === "string" ? rawValue.trim() : typeof rawValue === "boolean" ? rawValue : "";
     if (field.required && (value === "" || value === false)) return json({ error: field.label + " is required." }, 400);
     if (typeof value === "string" && value.length > 5000) return json({ error: field.label + " is too long." }, 400);
