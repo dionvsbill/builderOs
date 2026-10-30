@@ -1,5 +1,5 @@
-import VisualEditor from "@/components/visual-editor";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
-  return <VisualEditor />;
+  redirect("/dashboard");
 }
