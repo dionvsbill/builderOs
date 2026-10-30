@@ -52,12 +52,16 @@ function SortableBlock({ block, selected, preview, onSelect, onContent }: {
   </div>;
 }
 
-export default function Home() {
-  const [blocks, setBlocks] = useState<Block[]>(starterBlocks);
+type EditorProps = { projectId?: string; pageId?: string; initialRevision?: number; initialBlocks?: Block[]; initialSiteName?: string };
+
+export default function Home({ projectId, pageId, initialRevision = 1, initialBlocks, initialSiteName }: EditorProps = {}) {
+  const [blocks, setBlocks] = useState<Block[]>(initialBlocks?.length ? initialBlocks : starterBlocks);
   const [selected, setSelected] = useState("hero-title");
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [activeTab, setActiveTab] = useState<"add" | "layers">("add");
-  const [siteName, setSiteName] = useState("Untitled website");
+  const [siteName, setSiteName] = useState(initialSiteName ?? "Untitled website");
+  const [revision, setRevision] = useState(initialRevision);
+  const [saveError, setSaveError] = useState("");
   const [editingName, setEditingName] = useState(false);
   const [saved, setSaved] = useState(true);
   const [preview, setPreview] = useState(false);
@@ -68,27 +72,56 @@ export default function Home() {
   const current = useMemo(() => blocks.find((b) => b.id === selected) ?? null, [blocks, selected]);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as { blocks?: Block[]; siteName?: string };
-        if (Array.isArray(parsed.blocks) && parsed.blocks.length) setBlocks(parsed.blocks);
-        if (typeof parsed.siteName === "string") setSiteName(parsed.siteName);
-      }
-    } catch { /* Invalid local recovery data is ignored; server persistence will replace this. */ }
+    if (!projectId) {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as { blocks?: Block[]; siteName?: string };
+          if (Array.isArray(parsed.blocks) && parsed.blocks.length) setBlocks(parsed.blocks);
+          if (typeof parsed.siteName === "string") setSiteName(parsed.siteName);
+        }
+      } catch { /* Invalid local recovery data is ignored. */ }
+    } else {
+      setBlocks(initialBlocks?.length ? initialBlocks : starterBlocks);
+      setSiteName(initialSiteName ?? "Untitled website");
+      setRevision(initialRevision);
+    }
     setHydrated(true);
-  }, []);
+  }, [projectId, pageId, initialRevision, initialBlocks, initialSiteName]);
 
   useEffect(() => {
     if (!hydrated || saved) return;
-    const timer = window.setTimeout(() => {
+    const timer = window.setTimeout(async () => {
+      const document = { version: 1, children: blocks };
       try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ blocks, siteName, updatedAt: new Date().toISOString() }));
+        const recoveryKey = projectId ? `${STORAGE_KEY}:${projectId}` : STORAGE_KEY;
+        window.localStorage.setItem(recoveryKey, JSON.stringify({ blocks, siteName, updatedAt: new Date().toISOString() }));
+      } catch { /* Cloud save remains authoritative when local storage is unavailable. */ }
+      if (projectId && pageId) {
+        try {
+          const response = await fetch(`/api/projects/${projectId}/pages/${pageId}`, {
+            method: "PATCH", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ expectedRevision: revision, document })
+          });
+          const result = await response.json() as { revision?: number; error?: string };
+          if (!response.ok) {
+            setSaveError(result.error ?? "Could not save this page.");
+            setSaved(false);
+            return;
+          }
+          if (typeof result.revision === "number") setRevision(result.revision);
+          setSaveError("");
+          setSaved(true);
+        } catch {
+          setSaveError("Connection interrupted. Your latest changes are saved in this browser.");
+          setSaved(false);
+        }
+      } else {
         setSaved(true);
-      } catch { setSaved(false); }
+      }
     }, 2000);
     return () => window.clearTimeout(timer);
-  }, [blocks, siteName, saved, hydrated]);
+  }, [blocks, siteName, saved, hydrated, projectId, pageId, revision]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -150,7 +183,7 @@ export default function Home() {
         <div className="brand-mark"><Layers3 size={19} strokeWidth={2.4} /></div>
         <span className="brand-name">builder<span>OS</span></span><span className="top-divider" />
         {editingName ? <input className="site-name-input" value={siteName} autoFocus onChange={(e) => { setSiteName(e.target.value); setSaved(false); }} onBlur={() => setEditingName(false)} onKeyDown={(e) => e.key === "Enter" && setEditingName(false)} /> : <button className="site-name" onClick={() => setEditingName(true)}>{siteName}<ChevronDown size={14} /></button>}
-        <span className="save-indicator"><span className={saved ? "save-dot" : "save-dot pending"} />{saved ? "Saved locally" : "Saving…"}</span>
+        <span className="save-indicator"><span className={saved ? "save-dot" : "save-dot pending"} />{saved ? (projectId ? "Saved to cloud" : "Saved locally") : saveError ? "Save issue" : "Saving…"}</span>
       </div>
       <div className="top-actions">
         <button className="icon-button" aria-label="Undo" onClick={undo} disabled={!history.length}><Undo2 size={17} /></button>
@@ -170,7 +203,7 @@ export default function Home() {
           <div className="panel-heading"><div><h2>Elements</h2><p>Build your page</p></div><button className="subtle-icon" aria-label="Search elements"><Search size={16} /></button></div>
           <div className="element-grid">{library.map(({ kind, label, icon: Icon }) => <button key={kind} className="element-tile" onClick={() => addBlock(kind)}><Icon size={19} /><span>{label}</span></button>)}</div>
           <div className="library-section"><div className="section-label">PAGE SECTIONS</div>{sectionNames.map((name) => <button className="library-row" key={name} onClick={() => addBlock("section", name)}><Grid2X2 size={15} /><span>{name}</span><Plus size={14} /></button>)}</div>
-          <div className="left-panel-foot"><Sparkles size={15} /><span>Changes are recovered in this browser. Cloud sync is next.</span></div>
+          <div className="left-panel-foot"><Sparkles size={15} /><span>{projectId ? "Cloud sync and browser recovery are enabled." : "Changes are recovered in this browser. Cloud sync is next."}</span></div>
         </> : <div className="layers-list"><div className="panel-heading"><div><h2>Layers</h2><p>{blocks.length} elements on page</p></div></div>{blocks.map((block, index) => <div key={block.id} className={selected === block.id ? "layer-row selected" : "layer-row"}><button onClick={() => setSelected(block.id)}><span className="layer-bullet" />{block.label}</button><div><button aria-label="Move up" onClick={() => move(index, -1)}><ArrowUp size={13} /></button><button aria-label="Move down" onClick={() => move(index, 1)}><ArrowDown size={13} /></button><button aria-label="Delete" onClick={() => { commit(blocks.filter((b) => b.id !== block.id)); setSelected(""); }}><Trash2 size={13} /></button></div></div>)}</div>}
       </aside>
       <section className="editor-area">
@@ -190,7 +223,7 @@ export default function Home() {
           </div>
           {!preview && <div className="canvas-bottom"><span>© 2026 BUILDEROS</span><span>MADE FOR WHAT'S NEXT</span></div>}
         </div></div>
-        <div className="statusbar"><span><span className="status-dot" />{saved ? "Document saved locally" : "Saving changes…"}</span><span>Drag the grip on any selected block to reorder it</span></div>
+        <div className="statusbar"><span><span className="status-dot" />{saved ? (projectId ? "Document saved to cloud" : "Document saved locally") : saveError || "Saving changes…"}</span><span>Drag the grip on any selected block to reorder it</span></div>
       </section>
       <aside className="right-panel">
         <div className="right-panel-header"><div><h2>Properties</h2><p>{current ? current.label : "Select an element"}</p></div><button className="subtle-icon"><Settings2 size={17} /></button></div>
