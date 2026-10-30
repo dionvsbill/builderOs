@@ -1,10 +1,11 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Layers3, ArrowRight, LoaderCircle, CheckCircle2 } from "lucide-react";
 
 export default function ResetPasswordPage(){
+ useEffect(()=>{let active=true;createClient().auth.getUser().then(({data})=>{if(active&&data.user)setMode("update");});return()=>{active=false;};},[]);
  const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [confirm,setConfirm]=useState("");const [mode,setMode]=useState<"request"|"update">("request");const [busy,setBusy]=useState(false);const [message,setMessage]=useState("");const [error,setError]=useState("");
  async function send(e:FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setError("");setMessage("");try{const client=createClient();const {error}=await client.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin+"/auth/callback?next=/reset-password"});if(error)throw error;setMessage("If an account exists for this email, a password reset link has been sent.");}catch(err){setError(err instanceof Error?err.message:"Could not send reset email.");}finally{setBusy(false);}}
  async function update(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setError("");setMessage("");if(password.length<10||password!==confirm){setError("Use at least 10 characters and make both passwords match.");setBusy(false);return;}try{const client=createClient();const {data:{user}}=await client.auth.getUser();if(!user)throw new Error("Open the password reset link from your email first.");const {error}=await client.auth.updateUser({password});if(error)throw error;await client.auth.signOut();setMessage("Password changed. You can now sign in with your new password.");setMode("request");}catch(err){setError(err instanceof Error?err.message:"Password could not be changed.");}finally{setBusy(false);}}
