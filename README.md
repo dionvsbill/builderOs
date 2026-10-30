@@ -48,6 +48,8 @@ For a separate development or staging project:
    - `supabase/migrations/0004_account_profile_privacy_lifecycle.sql`
    - `supabase/migrations/0005_allow_deletion_request_resubmission.sql`
    - `supabase/migrations/0006_security_performance_hardening.sql`
+   - `supabase/migrations/0007_atomic_page_revision_saves.sql`
+   - `supabase/migrations/0008_atomic_starter_workspace_creation.sql`
 3. Copy `.env.example` to `.env.local`.
 4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project Connect dialog.
 5. Set `SUPABASE_SERVICE_ROLE_KEY` only as a private server environment variable to enable account deletion. Never expose it to browser code or prefix it with `NEXT_PUBLIC_`.
