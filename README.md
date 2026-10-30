@@ -36,7 +36,7 @@ npm run build
 
 ## Supabase setup
 
-The connected BuilderOS Supabase project is already provisioned. Migrations 0001–0020 have been applied to the live project. Do not replay migrations against that project.
+The connected BuilderOS Supabase project is already provisioned. Migrations 0001–0021 have been applied to the live project. Do not replay migrations against that project.
 
 For a separate development or staging project:
 
@@ -51,7 +51,7 @@ For a separate development or staging project:
    - `supabase/migrations/0007_atomic_page_revision_saves.sql`
    - `supabase/migrations/0008_atomic_starter_workspace_creation.sql`
    - `supabase/migrations/0009_seed_initial_page_revisions.sql`
-   - `supabase/migrations/0010_atomic_workspace_project_creation.sql`\n   - `supabase/migrations/0011_project_admin_preferences.sql`\n   - `supabase/migrations/0012_first_account_super_admin.sql`\n   - `supabase/migrations/0013_super_admin_app_metadata_claim.sql`\n   - `supabase/migrations/0014_form_runtime_rate_limits_and_job_claiming.sql`\n   - `supabase/migrations/0015_service_role_only_form_runtime_rpcs.sql`\n   - `supabase/migrations/0016_enforce_form_submission_caps_and_private_rate_limit_rls.sql`\n   - `supabase/migrations/0017_service_role_policy_for_private_form_rate_limits.sql`\n   - `supabase/migrations/0018_versioned_public_site_publishing.sql`\n   - `supabase/migrations/0019_atomic_project_snapshot_publishing.sql`\n   - `supabase/migrations/0020_per_project_encrypted_smtp_settings.sql`
+   - `supabase/migrations/0010_atomic_workspace_project_creation.sql`\n   - `supabase/migrations/0011_project_admin_preferences.sql`\n   - `supabase/migrations/0012_first_account_super_admin.sql`\n   - `supabase/migrations/0013_super_admin_app_metadata_claim.sql`\n   - `supabase/migrations/0014_form_runtime_rate_limits_and_job_claiming.sql`\n   - `supabase/migrations/0015_service_role_only_form_runtime_rpcs.sql`\n   - `supabase/migrations/0016_enforce_form_submission_caps_and_private_rate_limit_rls.sql`\n   - `supabase/migrations/0017_service_role_policy_for_private_form_rate_limits.sql`\n   - `supabase/migrations/0018_versioned_public_site_publishing.sql`\n   - `supabase/migrations/0019_atomic_project_snapshot_publishing.sql`\n   - `supabase/migrations/0020_per_project_encrypted_smtp_settings.sql`\n   - `supabase/migrations/0021_workspace_editor_page_deletion_policy.sql`
 3. Copy `.env.example` to `.env.local`.
 4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project Connect dialog.
 5. Set `SUPABASE_SERVICE_ROLE_KEY` only as a private server environment variable. Public form rendering/submission, email queue processing, account deletion and platform metrics require it. Never expose it to browser code or prefix it with `NEXT_PUBLIC_`.
@@ -67,7 +67,7 @@ The account deletion endpoint verifies the current password, refuses deletion wh
 1. Robust editor document model, sortable canvas, responsive properties and revision history.
 2. Supabase authentication, workspace onboarding and project persistence/autosave.
 3. Full form builder, secure public submission API, anti-abuse controls and SMTP delivery queue.
-4. Versioned public site publishing and route rendering are now implemented; custom-domain verification and automated SSL provisioning remain.
+4. Versioned public site publishing, route rendering and multi-page management are implemented; custom-domain verification and automated SSL provisioning remain.
 5. Commerce, verified payments, plans and analytics.
 
 ## Deployment
