@@ -32,7 +32,7 @@ function LoginForm() {
     <form onSubmit={submit} className="auth-form">
       <label htmlFor="email">Email address</label><input id="email" type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com"/>
       <label htmlFor="password">Password</label><input id="password" type="password" autoComplete="current-password" required minLength={8} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password"/>
-      <button className="auth-submit" disabled={busy}>{busy ? <LoaderCircle className="spin" size={17}/> : <>Sign in <ArrowRight size={16}/></>}</button>
+      <div className="auth-recovery"><Link href="/reset-password">Forgot password?</Link></div><button className="auth-submit" disabled={busy}>{busy ? <LoaderCircle className="spin" size={17}/> : <>Sign in <ArrowRight size={16}/></>}</button>
     </form>
     <p className="auth-switch">New to BuilderOS? <Link href="/signup">Create an account</Link></p>
     <div className="auth-foot">Secure workspace access · Your projects stay private</div>
