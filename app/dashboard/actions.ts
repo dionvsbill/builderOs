@@ -21,3 +21,22 @@ export async function createStarterWorkspace(formData: FormData) {
   if (error || !projectId) throw new Error(error?.message ?? "Could not create your workspace.");
   redirect(`/editor/${projectId}`);
 }
+
+export async function createProject(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) redirect("/login");
+  const workspaceId = String(formData.get("workspaceId") ?? "");
+  const name = String(formData.get("projectName") ?? "").trim().slice(0, 120);
+  const type = String(formData.get("projectType") ?? "website");
+  if (!workspaceId || !name || !["website", "form", "store"].includes(type)) {
+    throw new Error("Choose a workspace, project name and valid project type.");
+  }
+  const { data: projectId, error } = await supabase.rpc("create_workspace_project", {
+    target_workspace_id: workspaceId,
+    project_name: name,
+    target_project_type: type
+  });
+  if (error || !projectId) throw new Error(error?.message ?? "Could not create project.");
+  redirect(`/editor/${projectId}`);
+}
