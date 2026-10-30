@@ -106,3 +106,34 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @keyframes bos-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes bos-reveal{from{opacity:0;clip-path:inset(0 0 100% 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Published BuilderOS pages and connected workflow forms */
+.bos-published{min-height:100vh;background:#fff;color:#172033;font-family:Inter,Arial,sans-serif}
+.bos-published-header{min-height:68px;border-bottom:1px solid #e8ebf1;display:flex;align-items:center;justify-content:space-between;padding:0 max(22px,calc((100vw - 1120px)/2))}
+.bos-published-header strong{font-size:18px;letter-spacing:-.5px}
+.bos-published-header nav{display:flex;gap:20px;font-size:12px}
+.bos-published-header a{color:#68758a;text-decoration:none}
+.bos-published-content{max-width:1120px;margin:0 auto;padding:70px 24px 90px}
+.bos-published-blocks{display:grid;gap:28px}
+.bos-published-cta{display:inline-flex;padding:13px 22px;background:#243b70;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px}
+.bos-published-section{padding:42px 30px;background:#f5f7fb;border-radius:14px}
+.bos-published-section h2{font-size:24px;margin:0 0 10px}
+.bos-published-section p{color:#68758a;line-height:1.7;margin:0}
+.bos-published-footer{border-top:1px solid #e8ebf1;padding:24px;text-align:center;font-size:12px;color:#8792a4}
+.bos-form{display:grid;gap:13px;max-width:620px;margin:auto;padding:26px;background:#f6f8fb;border:1px solid #e6eaf1;border-radius:16px;width:100%}
+.bos-form h2{margin:0;font-size:23px}.bos-form>p{margin:0;color:#657187;font-size:13px}
+.bos-form label{display:grid;gap:6px;font-size:13px;font-weight:600;color:#344054}
+.bos-form input,.bos-form textarea{width:100%;padding:12px;border:1px solid #cfd6e2;border-radius:8px;background:white;color:#172033}
+.bos-form button{border:0;border-radius:8px;background:#243b70;color:white;padding:13px 18px;font-weight:700}
+.bos-form button:disabled{opacity:.65;cursor:wait}.bos-form [aria-live]{font-size:13px;color:#52627a}
+.bos-honeypot{position:absolute!important;left:-10000px!important}
+@keyframes bosFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes bosFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes bosSlideLeft{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes bosSlideRight{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+@keyframes bosZoom{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.bos-fade-up{animation:bosFadeUp .65s ease both}.bos-fade-in{animation:bosFadeIn .65s ease both}
+.bos-slide-left{animation:bosSlideLeft .65s ease both}.bos-slide-right{animation:bosSlideRight .65s ease both}.bos-zoom-in{animation:bosZoom .65s ease both}
+@media(prefers-reduced-motion:reduce){.bos-fade-up,.bos-fade-in,.bos-slide-left,.bos-slide-right,.bos-zoom-in{animation:none!important}}
+@media(max-width:640px){.bos-published-header{padding:0 18px}.bos-published-content{padding:44px 18px 60px}.bos-form{padding:18px}}
