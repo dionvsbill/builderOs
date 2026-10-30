@@ -10,7 +10,8 @@ export default async function ProjectEditorPage({params,searchParams}:{params:{p
  if(error||!user)redirect("/login");
  const {data:project}=await supabase.from("projects").select("id,name,project_type").eq("id",params.projectId).maybeSingle();
  if(!project)notFound();
- const pageQuery=supabase.from("pages").select("id,name,path,document,revision").eq("project_id",project.id);\n const {data:page}=searchParams?.page?await pageQuery.eq("id",searchParams.page).maybeSingle():await pageQuery.eq("path","/").maybeSingle();
+ const pageQuery=supabase.from("pages").select("id,name,path,document,revision").eq("project_id",project.id);
+ const {data:page}=searchParams?.page?await pageQuery.eq("id",searchParams.page).maybeSingle():await pageQuery.eq("path","/").maybeSingle();
  if(!page)notFound();
  const raw=(page.document as {children?:RawBlock[]}|null)?.children??[];
  const initialBlocks=raw.map((block,index)=>{
