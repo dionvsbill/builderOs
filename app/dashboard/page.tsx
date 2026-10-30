@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createStarterWorkspace } from "./actions";
-import { Layers3, Globe2, FileText, ShoppingBag, ArrowUpRight, Plus, LogOut } from "lucide-react";
+import { Layers3, Globe2, FileText, ShoppingBag, ArrowUpRight, Plus, LogOut, Settings } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ export default async function DashboardPage() {
     : { data: [] };
   const displayName = user.user_metadata?.display_name || user.email?.split("@")[0] || "Builder";
   return <main className="dash-shell">
-    <header className="dash-top"><Link className="dash-brand" href="/dashboard"><span><Layers3 size={19}/></span>builder<span>OS</span></Link><div className="dash-user"><span>{user.email}</span><form action={async()=>{"use server";const client=await createClient();await client.auth.signOut();redirect("/login");}}><button aria-label="Sign out"><LogOut size={16}/></button></form></div></header>
+    <header className="dash-top"><Link className="dash-brand" href="/dashboard"><span><Layers3 size={19}/></span>builder<span>OS</span></Link><div className="dash-user"><span>{user.email}</span><Link href="/settings" aria-label="Account settings" className="dash-settings-link"><Settings size={16}/></Link><form action={async()=>{"use server";const client=await createClient();await client.auth.signOut();redirect("/login");}}><button aria-label="Sign out"><LogOut size={16}/></button></form></div></header>
     <section className="dash-content">
       <div className="dash-welcome"><div><div className="auth-eyebrow">YOUR WORKSPACE</div><h1>Good to see you, {displayName}.</h1><p>Your next idea starts here. Create a project or jump back into your work.</p></div></div>
       <div className="dash-section-title"><div><h2>Your projects</h2><p>Websites, forms and stores in one place.</p></div><span>{projects?.length ?? 0} projects</span></div>
