@@ -16,7 +16,7 @@ import {
   Type, Undo2, WandSparkles, X, GripVertical, Trash2, History, Menu, SlidersHorizontal
 } from "lucide-react";
 
-type BlockKind = "heading" | "text" | "button" | "image" | "section";
+type BlockKind = "heading" | "text" | "button" | "image" | "section" | "form";
 type Block = {
   id: string; kind: BlockKind; label: string; content: string;
   styles: { align?: "left" | "center" | "right"; width?: string; opacity?: number; radius?: number; animation?: "none" | "fade-up" | "fade-in" | "slide-left" | "slide-right" | "zoom-in" | "float" | "reveal" };
@@ -31,7 +31,7 @@ const starterBlocks: Block[] = [
 const library: { kind: BlockKind; label: string; icon: typeof Type }[] = [
   { kind: "section", label: "Section", icon: Layers3 }, { kind: "heading", label: "Heading", icon: Type },
   { kind: "text", label: "Paragraph", icon: FileText }, { kind: "button", label: "Button", icon: MousePointer2 },
-  { kind: "image", label: "Image", icon: ImageIcon }
+  { kind: "image", label: "Image", icon: ImageIcon }, { kind: "form", label: "Workflow form", icon: FileText }
 ];
 const sectionNames = ["Header", "Hero", "Features", "About", "Services", "Testimonials", "FAQ", "Contact", "Footer"];
 const pageTemplates: { name: string; description: string; blocks: Omit<Block, "id">[] }[] = [
