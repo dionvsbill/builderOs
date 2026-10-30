@@ -15,14 +15,14 @@ export default async function ProjectEditorPage({params}:{params:{projectId:stri
  const raw=(page.document as {children?:RawBlock[]}|null)?.children??[];
  const initialBlocks=raw.map((block,index)=>{
   const kind=(kinds as readonly string[]).includes(block.kind??block.type??"")?(block.kind??block.type) as typeof kinds[number]:"section";
-  const align=block.styles?.align;
+  const align: "left" | "center" | "right" = block.styles?.align==="center" || block.styles?.align==="right" ? block.styles.align : "left";
   return {
    id:typeof block.id==="string"?block.id:`saved-block-${index}`,
    kind,
    label:typeof block.label==="string"?block.label:kind==="heading"?"Heading":kind==="text"?"Paragraph":kind==="button"?"Button":kind==="image"?"Image":"Section",
    content:typeof block.content==="string"?block.content:"",
    styles:{
-    align:align==="center"||align==="right"?align:"left",
+    align,
     width:typeof block.styles?.width==="string"?block.styles.width:"100%",
     opacity:typeof block.styles?.opacity==="number"?block.styles.opacity:100,
     radius:typeof block.styles?.radius==="number"?block.styles.radius:kind==="button"?4:0
