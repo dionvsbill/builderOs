@@ -4,13 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 
 type RawBlock={id?:string;kind?:string;type?:string;label?:string;content?:string;styles?:Record<string,unknown>};
 const kinds=["heading","text","button","image","section"] as const;
-export default async function ProjectEditorPage({params}:{params:{projectId:string}}){
+export default async function ProjectEditorPage({params,searchParams}:{params:{projectId:string};searchParams?:{page?:string}}){
  const supabase=await createClient();
  const {data:{user},error}=await supabase.auth.getUser();
  if(error||!user)redirect("/login");
  const {data:project}=await supabase.from("projects").select("id,name,project_type").eq("id",params.projectId).maybeSingle();
  if(!project)notFound();
- const {data:page}=await supabase.from("pages").select("id,name,path,document,revision").eq("project_id",project.id).eq("path","/").maybeSingle();
+ const pageQuery=supabase.from("pages").select("id,name,path,document,revision").eq("project_id",project.id);\n const {data:page}=searchParams?.page?await pageQuery.eq("id",searchParams.page).maybeSingle():await pageQuery.eq("path","/").maybeSingle();
  if(!page)notFound();
  const raw=(page.document as {children?:RawBlock[]}|null)?.children??[];
  const initialBlocks=raw.map((block,index)=>{
