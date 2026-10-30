@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import Home from "@/app/page";
+import VisualEditor from "@/components/visual-editor";
 import { createClient } from "@/lib/supabase/server";
 
 type RawBlock={id?:string;kind?:string;type?:string;label?:string;content?:string;styles?:Record<string,unknown>};
@@ -29,5 +29,5 @@ export default async function ProjectEditorPage({params}:{params:{projectId:stri
    }
   };
  });
- return <Home projectId={project.id} pageId={page.id} initialRevision={page.revision} initialBlocks={initialBlocks} initialSiteName={project.name}/>;
+ return <VisualEditor projectId={project.id} pageId={page.id} initialRevision={page.revision} initialBlocks={initialBlocks} initialSiteName={project.name}/>;
 }
