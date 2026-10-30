@@ -43,10 +43,10 @@ npm run build
    - `supabase/migrations/0003_secure_workspace_onboarding.sql`
 3. Copy `.env.example` to `.env.local`.
 4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project Connect dialog.
-5. In Supabase Authentication URL Configuration, set the Site URL to your app origin and add `http://localhost:3000/auth/callback` plus your production `https://YOUR-RENDER-DOMAIN/auth/callback` to the allowed redirect URLs.
+5. In Supabase Authentication URL Configuration, set the Site URL to your app origin and add `http://localhost:3000/auth/callback`, `http://localhost:3000/reset-password`, plus your production `https://YOUR-RENDER-DOMAIN/auth/callback` and `https://YOUR-RENDER-DOMAIN/reset-password` to the allowed redirect URLs.
 6. Enable email/password authentication. If email confirmation is enabled, new users must confirm their email before signing in.
 
-Never expose service-role/secret, SMTP, Paystack secret or Stripe secret keys in browser code. When Supabase environment variables are missing, the middleware skips session enforcement so the editor can still load locally; authentication is not protected until both public Supabase variables are configured.
+Set `SUPABASE_SERVICE_ROLE_KEY` only as a private Render/server environment variable to enable the protected account deletion endpoint. It must never use a `NEXT_PUBLIC_` prefix. The deletion endpoint verifies the current password, refuses deletion while the user owns a workspace, removes private avatar files, then deletes the Auth user.\n\nThe account export endpoint streams a private JSON export for the authenticated user. It includes accessible account, workspace, project, page, form and submission records; uploaded binary files and external payment-provider records are not embedded.\n\nNever expose service-role/secret, SMTP, Paystack secret or Stripe secret keys in browser code. When Supabase environment variables are missing, the middleware skips session enforcement so the editor can still load locally; authentication is not protected until both public Supabase variables are configured.
 
 ## Product roadmap
 
