@@ -23,6 +23,9 @@ export async function GET() {
  const projectIds=ownProjects.map(p=>p.id);
  const pageResult=projectIds.length?await supabase.from("pages").select("id,project_id,name,path,document,revision,updated_at").in("project_id",projectIds):{data:[],error:null};
  const selectedForms=(forms.data??[]).filter(f=>projectIds.includes(f.project_id));
+ const pageIds=(pageResult.data??[]).map(page=>page.id);
+ const revisionsResult=pageIds.length?await supabase.from("page_revisions").select("page_id,revision,document,created_by,created_at").in("page_id",pageIds).order("revision",{ascending:true}):{data:[],error:null};
+ if(revisionsResult.error)return NextResponse.json({error:"Could not export page revision history."},{status:500});
  const formIds=selectedForms.map(f=>f.id);
  const submissionRows: {id:string;form_id:string;payload:unknown;submitter_email:string|null;status:string;created_at:string}[]=[];
  if(formIds.length){
@@ -40,6 +43,6 @@ export async function GET() {
   supabase.from("email_delivery_jobs").select("id,submission_id,recipient,status,attempts,created_at,sent_at").in("submission_id",submissionIds)
  ]):[{data:[],error:null},{data:[],error:null}];
  if(filesResult.error||jobsResult.error)return NextResponse.json({error:"Could not export submission delivery records."},{status:500});
- const payload={exported_at:new Date().toISOString(),account:{id:user.id,email:user.email,created_at:user.created_at,last_sign_in_at:user.last_sign_in_at},profile:profile.data,preferences:preferences.data,workspaces:memberships.data,projects:ownProjects,pages:pageResult.data,forms:selectedForms,form_submissions:submissionRows,submission_files:filesResult.data,email_delivery_jobs:jobsResult.data,account_activity:activity.data,deletion_requests:deletion.data,export_requests:exportRequests.data,notes:["This export includes records accessible to your account at export time.","Uploaded binary files and external payment-provider records are not embedded in this JSON file."]};
+ const payload={exported_at:new Date().toISOString(),account:{id:user.id,email:user.email,created_at:user.created_at,last_sign_in_at:user.last_sign_in_at},profile:profile.data,preferences:preferences.data,workspaces:memberships.data,projects:ownProjects,pages:pageResult.data,page_revisions:revisionsResult.data,forms:selectedForms,form_submissions:submissionRows,submission_files:filesResult.data,email_delivery_jobs:jobsResult.data,account_activity:activity.data,deletion_requests:deletion.data,export_requests:exportRequests.data,notes:["This export includes records accessible to your account at export time.","Uploaded binary files and external payment-provider records are not embedded in this JSON file."]};
  return new NextResponse(JSON.stringify(payload,null,2),{status:200,headers:{"Content-Type":"application/json; charset=utf-8","Content-Disposition":`attachment; filename="builderos-data-export-${new Date().toISOString().slice(0,10)}.json"`,"Cache-Control":"private, no-store"}});
 }
