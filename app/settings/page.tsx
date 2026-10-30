@@ -38,7 +38,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: { s
             <label>Job title<input name="jobTitle" defaultValue={profile?.job_title ?? ""} maxLength={100} placeholder="Your role"/></label>
             <label>Website<input name="website" type="url" defaultValue={profile?.website ?? ""} maxLength={200} placeholder="https://example.com"/></label>
             <label>Timezone<select name="timezone" defaultValue={profile?.timezone ?? "Africa/Accra"}><option value="Africa/Accra">Africa/Accra (GMT)</option><option value="UTC">UTC</option><option value="Europe/London">Europe/London</option><option value="America/New_York">America/New_York</option></select></label>
-          </div><button className="settings-primary">Save profile</button></form>
+          </div><button className="settings-primary">Save profile</button></form></div>
         </section>
         <section className="settings-card" id="preferences"><div className="settings-card-title"><Bell size={18}/><div><h3>Notifications & preferences</h3><p>Choose the product updates and account notifications you receive.</p></div></div>
           <form action={updatePreferences} className="settings-form"><div className="settings-toggle-list">
