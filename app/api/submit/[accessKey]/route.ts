@@ -15,7 +15,10 @@ export async function POST(request: Request, { params }: { params: { accessKey: 
   const admin = createAdminClient();
   const { data: form } = await admin.from("forms").select("id,name,schema,settings,submission_limit").eq("access_key_hash", digest(params.accessKey)).eq("status", "published").maybeSingle();
   if (!form) return NextResponse.json({ error: "This form is unavailable." }, { status: 404 });
-  const body = await request.json().catch(() => null) as { values?: Record<string, unknown>; website?: string } | null;
+  const rawBody = await request.text();
+  if (rawBody.length > 65536) return NextResponse.json({ error: "Submission is too large." }, { status: 413 });
+  let body: { values?: Record<string, unknown>; website?: string } | null = null;
+  try { body = JSON.parse(rawBody) as { values?: Record<string, unknown>; website?: string }; } catch { return NextResponse.json({ error: "Invalid JSON submission." }, { status: 400 }); }
   if (!body || !body.values || typeof body.values !== "object" || Array.isArray(body.values)) return NextResponse.json({ error: "Invalid form response." }, { status: 400 });
   if (body.website) return NextResponse.json({ success: true });
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
