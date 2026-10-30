@@ -36,7 +36,7 @@ npm run build
 
 ## Supabase setup
 
-The connected BuilderOS Supabase project is already provisioned. Its migrations 0001–0008 have been applied and the 14 public tables have Row Level Security enabled. Do not re-run the migrations against that live project.
+The connected BuilderOS Supabase project is already provisioned. Its migrations 0001–0009 have been applied and the 14 public tables have Row Level Security enabled. Do not re-run the migrations against that live project.
 
 For a separate development or staging project:
 
@@ -50,6 +50,7 @@ For a separate development or staging project:
    - `supabase/migrations/0006_security_performance_hardening.sql`
    - `supabase/migrations/0007_atomic_page_revision_saves.sql`
    - `supabase/migrations/0008_atomic_starter_workspace_creation.sql`
+   - `supabase/migrations/0009_seed_initial_page_revisions.sql`
 3. Copy `.env.example` to `.env.local`.
 4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project Connect dialog.
 5. Set `SUPABASE_SERVICE_ROLE_KEY` only as a private server environment variable to enable account deletion. Never expose it to browser code or prefix it with `NEXT_PUBLIC_`.
