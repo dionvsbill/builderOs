@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 const csvCell = (value: unknown) => {
-  const text = typeof value === "string" ? value : value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value);
+  let text = typeof value === "string" ? value : value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value);
+  if (/^[=+@\\-\\t\\r]/.test(text)) text = "'" + text;
   return '"' + text.replace(/"/g, '""') + '"';
 };
 
