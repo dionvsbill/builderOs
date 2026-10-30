@@ -99,6 +99,8 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
       } catch { /* Cloud save remains authoritative when local storage is unavailable. */ }
       if (projectId && pageId) {
         try {
+          const projectResponse = await fetch(`/api/projects/${projectId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: siteName }) });
+          if (!projectResponse.ok) { const projectResult = await projectResponse.json() as { error?: string }; throw new Error(projectResult.error ?? "Could not save project name."); }
           const response = await fetch(`/api/projects/${projectId}/pages/${pageId}`, {
             method: "PATCH", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ expectedRevision: revision, document })
@@ -112,8 +114,8 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
           if (typeof result.revision === "number") setRevision(result.revision);
           setSaveError("");
           setSaved(true);
-        } catch {
-          setSaveError("Connection interrupted. Your latest changes are saved in this browser.");
+        } catch (error) {
+          setSaveError(error instanceof Error ? error.message : "Connection interrupted. Your latest changes are saved in this browser.");
           setSaved(false);
         }
       } else {
