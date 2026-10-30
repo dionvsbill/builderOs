@@ -49,7 +49,7 @@ with check (
   created_by = (select auth.uid())
   and exists (
     select 1 from public.workspace_members wm
-    where wm.workspace_id = workspace_id
+    where wm.workspace_id = projects.workspace_id
       and wm.user_id = (select auth.uid())
       and wm.role in ('owner','admin','editor')
   )
@@ -82,7 +82,7 @@ with check (
   exists (
     select 1 from public.projects p
     join public.workspace_members wm on wm.workspace_id = p.workspace_id
-    where p.id = project_id and wm.user_id = (select auth.uid())
+    where p.id = pages.project_id and wm.user_id = (select auth.uid())
       and wm.role in ('owner','admin','editor')
   )
 );
