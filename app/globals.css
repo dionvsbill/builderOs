@@ -76,3 +76,33 @@
 .app-shell{height:100dvh;min-height:0;overflow:hidden}.workspace{min-height:0;overflow:hidden}.left-panel,.right-panel{overscroll-behavior:contain;scrollbar-gutter:stable}.editor-area{min-height:0;overflow:hidden}.canvas-scroll{min-height:0;overscroll-behavior:contain;scrollbar-width:thin}.website-canvas{flex:none}.mobile-editor-nav{display:none}
 @media(max-width:900px){.workspace{grid-template-columns:minmax(0,1fr);position:relative}.left-panel,.right-panel{display:none}.left-panel.mobile-open,.right-panel.mobile-open{display:flex;position:absolute;z-index:60;top:0;bottom:0;width:min(88vw,340px);max-height:100%;box-shadow:0 18px 60px #000b}.left-panel.mobile-open{left:0}.right-panel.mobile-open{right:0;display:block}.editor-area{grid-column:1;min-width:0}.mobile-editor-nav{height:62px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);background:#101720;border-top:1px solid #2a3544;padding-bottom:env(safe-area-inset-bottom);z-index:70}.mobile-editor-nav button{border:0;background:transparent;color:#8492a6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px}.mobile-editor-nav button.active{color:#b9caff;background:#1a2638}.canvas-scroll{padding:16px 12px 28px}.website-canvas{min-height:760px}.hero-canvas{padding:70px 8% 55px}.topbar{height:auto;min-height:58px;padding:8px 12px;gap:8px}.brand-area{gap:8px;min-width:0}.brand-name{font-size:15px}.save-indicator{font-size:9px;margin-left:0;white-space:nowrap}.top-actions{gap:3px}.top-actions>.icon-button[aria-label=Help],.top-actions>.icon-button[aria-label=Notifications],.top-actions>.avatar{display:none}.preview-button,.publish-button{height:31px;padding:0 8px;font-size:10px}}
 @media(max-width:560px){.topbar{align-items:flex-start;flex-direction:column}.brand-area{width:100%;justify-content:flex-start}.top-actions{width:100%;justify-content:flex-end}.top-actions .top-divider{display:none}.editor-toolbar{height:44px;padding:0 10px}.breadcrumb{font-size:10px}.zoom-label{display:none}.canvas-scroll{padding:12px 8px 22px}.website-canvas.mobile{max-width:100%;width:100%}.website-canvas:not(.mobile){min-width:520px}.canvas-scroll:has(.website-canvas:not(.mobile)){justify-content:flex-start}.hero-canvas{padding:54px 7% 48px}.canvas-block h1{font-size:clamp(34px,9vw,48px);letter-spacing:-1.8px}.statusbar{min-height:28px;padding:0 9px;font-size:9px}.statusbar>span:last-child{display:none}}
+
+
+/* BuilderOS motion system: reusable entrance, overlay, popup and control transitions */
+:root{--bos-motion-fast:160ms;--bos-motion-base:240ms;--bos-motion-slow:420ms;--bos-ease:cubic-bezier(.2,.75,.25,1)}
+button,a,[role=button],input,select,textarea{transition:background-color var(--bos-motion-fast) ease,border-color var(--bos-motion-fast) ease,color var(--bos-motion-fast) ease,box-shadow var(--bos-motion-fast) ease,transform var(--bos-motion-fast) var(--bos-ease),opacity var(--bos-motion-fast) ease}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #9aafff;outline-offset:3px}
+.ai-studio-overlay{animation:bos-overlay-in var(--bos-motion-base) ease both}
+.ai-studio-dialog{animation:bos-dialog-in var(--bos-motion-slow) var(--bos-ease) both}
+.revision-popover{transform-origin:top right;animation:bos-dialog-in var(--bos-motion-base) var(--bos-ease) both}
+.template-row span{display:grid;gap:4px}.template-row small{display:block;color:#8190a3;font-size:9px;line-height:1.4;white-space:normal}
+.field-hint{font-size:9px;line-height:1.6;color:#8190a3;margin:8px 0 0}
+.motion-fade-up{animation:bos-fade-up 650ms var(--bos-ease) both}
+.motion-fade-in{animation:bos-fade-in 650ms ease both}
+.motion-slide-left{animation:bos-slide-left 650ms var(--bos-ease) both}
+.motion-slide-right{animation:bos-slide-right 650ms var(--bos-ease) both}
+.motion-zoom-in{animation:bos-zoom-in 550ms var(--bos-ease) both}
+.motion-float{animation:bos-float 4s ease-in-out infinite}
+.motion-reveal{animation:bos-reveal 750ms var(--bos-ease) both}
+.canvas-block{transition:transform var(--bos-motion-base) var(--bos-ease),box-shadow var(--bos-motion-base) ease,opacity var(--bos-motion-base) ease}
+.element-tile:hover,.library-row:hover,.advanced-row:hover,.preview-button:hover,.publish-button:hover{transform:translateY(-1px)}
+@keyframes bos-overlay-in{from{opacity:0}to{opacity:1}}
+@keyframes bos-dialog-in{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes bos-fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bos-fade-in{from{opacity:0}to{opacity:1}}
+@keyframes bos-slide-left{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bos-slide-right{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bos-zoom-in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes bos-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes bos-reveal{from{opacity:0;clip-path:inset(0 0 100% 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
