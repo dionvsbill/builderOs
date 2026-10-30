@@ -40,5 +40,5 @@ export async function createStarterWorkspace(formData: FormData) {
     ] }, updated_by: user.id
   });
   if (pageError) throw new Error(pageError.message);
-  redirect("/");
+  redirect(`/editor/${project.id}`);
 }
