@@ -11,9 +11,10 @@ export async function PATCH(request:Request,{params}:{params:{projectId:string;p
  const body=await request.json().catch(()=>null) as {expectedRevision?:number;document?:{version?:number;children?:SavedBlock[]}}|null;
  if(!body||typeof body.expectedRevision!=="number"||!Number.isInteger(body.expectedRevision)||!body.document||body.document.version!==1||!Array.isArray(body.document.children))return NextResponse.json({error:"Invalid document payload."},{status:400});
  const document=body.document;
- if(document.children.length>200)return NextResponse.json({error:"A page can contain at most 200 blocks."},{status:413});
+ const children=document.children as SavedBlock[];
+ if(children.length>200)return NextResponse.json({error:"A page can contain at most 200 blocks."},{status:413});
  let size=0;
- for(const block of document.children){
+ for(const block of children){
   if(!block||typeof block.id!=="string"||block.id.length>80||typeof block.kind!=="string"||!["heading","text","button","image","section"].includes(block.kind)||typeof block.content!=="string"||block.content.length>10000||typeof block.label!=="string"||block.label.length>100)return NextResponse.json({error:"One or more page blocks are invalid."},{status:400});
   size+=block.content.length;
   if(block.styles&&((block.styles.align&&!["left","center","right"].includes(block.styles.align))||(block.styles.opacity!==undefined&&(!Number.isFinite(block.styles.opacity)||block.styles.opacity<0||block.styles.opacity>100))||(block.styles.radius!==undefined&&(!Number.isFinite(block.styles.radius)||block.styles.radius<0||block.styles.radius>100))))return NextResponse.json({error:"A block contains invalid style values."},{status:400});
