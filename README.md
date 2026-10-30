@@ -34,14 +34,24 @@ npm run typecheck
 npm run build
 ```
 
-## Environment
+## Supabase setup
 
-Copy `.env.example` to `.env.local` and add credentials only when the corresponding backend integration is implemented. Never expose service-role, SMTP, Paystack secret or Stripe secret keys in browser code.
+1. Create a Supabase project.
+2. In the Supabase SQL Editor, run the migrations in order:
+   - `supabase/migrations/0001_initial_workspace_schema.sql`
+   - `supabase/migrations/0002_forms_and_delivery.sql`
+   - `supabase/migrations/0003_secure_workspace_onboarding.sql`
+3. Copy `.env.example` to `.env.local`.
+4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project Connect dialog.
+5. In Supabase Authentication URL Configuration, set the Site URL to your app origin and add `http://localhost:3000/auth/callback` plus your production `https://YOUR-RENDER-DOMAIN/auth/callback` to the allowed redirect URLs.
+6. Enable email/password authentication. If email confirmation is enabled, new users must confirm their email before signing in.
+
+Never expose service-role/secret, SMTP, Paystack secret or Stripe secret keys in browser code. The auth middleware deliberately does not bypass login when Supabase environment variables are missing; configure the variables before treating the app as protected.
 
 ## Product roadmap
 
 1. Robust editor document model, sortable canvas, responsive properties and revision history.
-2. Supabase authentication, project persistence and autosave.
+2. Supabase authentication, workspace onboarding and project persistence/autosave.
 3. Form builder, secure submission API and SMTP delivery queue.
 4. Versioned publishing and multi-tenant domain routing.
 5. Commerce, verified payments, plans and analytics.
