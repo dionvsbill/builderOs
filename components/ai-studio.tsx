@@ -3,7 +3,7 @@
 import { useState, type CSSProperties } from "react";
 
 type DraftBlock = {
-  kind: "heading" | "text" | "button" | "image" | "section";
+  kind: "heading" | "text" | "button" | "image" | "section" | "form";
   label: string;
   content: string;
   styles: { align: "left" | "center" | "right"; width: string; opacity: number; radius: number };
@@ -75,7 +75,7 @@ export function AIStudio({ currentBlocks, onApply, onClose }: {
     setLoading(true);
     setError("");
     try {
-      const system = `You are BuilderOS AI Studio, a website layout assistant. Return only valid JSON with this exact shape: {"blocks":[{"kind":"heading|text|button|image|section","label":"short label","content":"visible text or image description","styles":{"align":"left|center|right","width":"100%|80%|50%|auto","opacity":100,"radius":0}}]}. Create a coherent, polished single-page website using only these supported block kinds. Include a clear heading, useful copy, calls to action and named sections as appropriate. Use 8 to 18 blocks for a full page, fewer for a simple request. Do not include HTML, CSS, scripts, markdown or extra keys. Keep each content value concise. Current page blocks: ${JSON.stringify(currentBlocks)}`;
+      const system = `You are BuilderOS AI Studio, a website layout assistant. Return only valid JSON with this exact shape: {"blocks":[{"kind":"heading|text|button|image|section|form","label":"short label","content":"visible text or image description","styles":{"align":"left|center|right","width":"100%|80%|50%|auto","opacity":100,"radius":0}}]}. Create a coherent, polished single-page website using only these supported block kinds. Include a clear heading, useful copy, calls to action and named sections as appropriate. When the visitor must contact, book or register, include a form block and set its content to a concise description followed by |workflow=contact or |workflow=booking or |workflow=registration. The form will need an access key configured before publishing. Use 8 to 18 blocks for a full page, fewer for a simple request. Do not include HTML, CSS, scripts, markdown or extra keys. Keep each content value concise. Current page blocks: ${JSON.stringify(currentBlocks)}`;
       const response = await engine.chat.completions.create({
         messages: [
           { role: "system", content: system },
@@ -87,7 +87,7 @@ export function AIStudio({ currentBlocks, onApply, onClose }: {
       const raw = response.choices[0]?.message?.content ?? "";
       const parsed = JSON.parse(raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "")) as { blocks?: unknown };
       if (!Array.isArray(parsed.blocks) || parsed.blocks.length === 0) throw new Error("The model did not return a valid page layout. Please try a more specific description.");
-      const allowed = new Set(["heading", "text", "button", "image", "section"]);
+      const allowed = new Set(["heading", "text", "button", "image", "section", "form"]);
       const blocks = parsed.blocks.slice(0, 40).flatMap((item, index): DraftBlock[] => {
         if (!item || typeof item !== "object") return [];
         const value = item as Record<string, unknown>;
