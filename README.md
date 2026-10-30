@@ -36,20 +36,27 @@ npm run build
 
 ## Supabase setup
 
+The connected BuilderOS Supabase project is already provisioned. Its migrations 0001–0006 have been applied and the 14 public tables have Row Level Security enabled. Do not re-run the migrations against that live project.
+
+For a separate development or staging project:
+
 1. Create a Supabase project.
-2. In the Supabase SQL Editor, run the migrations in order:
+2. Apply the migrations in order:
    - `supabase/migrations/0001_initial_workspace_schema.sql`
    - `supabase/migrations/0002_forms_and_delivery.sql`
    - `supabase/migrations/0003_secure_workspace_onboarding.sql`
    - `supabase/migrations/0004_account_profile_privacy_lifecycle.sql`
    - `supabase/migrations/0005_allow_deletion_request_resubmission.sql`
-   - `supabase/migrations/0006_security_performance_hardening.sql`\n\nThe connected BuilderOS Supabase project already has migrations 0001–0006 applied. Do not re-run these SQL files on that live project.
+   - `supabase/migrations/0006_security_performance_hardening.sql`
 3. Copy `.env.example` to `.env.local`.
 4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project Connect dialog.
-5. In Supabase Authentication URL Configuration, set the Site URL to your app origin and add `http://localhost:3000/auth/callback`, `http://localhost:3000/reset-password`, plus your production `https://YOUR-RENDER-DOMAIN/auth/callback` and `https://YOUR-RENDER-DOMAIN/reset-password` to the allowed redirect URLs.
-6. Enable email/password authentication. If email confirmation is enabled, new users must confirm their email before signing in.
+5. Set `SUPABASE_SERVICE_ROLE_KEY` only as a private server environment variable to enable account deletion. Never expose it to browser code or prefix it with `NEXT_PUBLIC_`.
+6. In Supabase Authentication URL Configuration, set the Site URL to your app origin and add the local and production `/auth/callback` and `/reset-password` URLs to the allowed redirect URLs.
+7. Enable email/password authentication and configure SMTP/email templates for confirmation and password recovery.
 
-Set `SUPABASE_SERVICE_ROLE_KEY` only as a private Render/server environment variable to enable the protected account deletion endpoint. It must never use a `NEXT_PUBLIC_` prefix. The deletion endpoint verifies the current password, refuses deletion while the user owns a workspace, removes private avatar files, then deletes the Auth user.\n\nThe account export endpoint streams a private JSON export for the authenticated user. It includes accessible account, workspace, project, page, form and submission records; uploaded binary files and external payment-provider records are not embedded.\n\nNever expose service-role/secret, SMTP, Paystack secret or Stripe secret keys in browser code. When Supabase environment variables are missing, the middleware skips session enforcement so the editor can still load locally; authentication is not protected until both public Supabase variables are configured.
+The account export endpoint streams a private JSON export for the authenticated user, including accessible profile, workspace, project, page, form and submission records. Uploaded binary files and external payment-provider records are not embedded.
+
+The account deletion endpoint verifies the current password, refuses deletion while the user owns a workspace, removes private avatar files, and then deletes the Auth user. Configure the private service-role key in Render before enabling this endpoint.
 
 ## Product roadmap
 
