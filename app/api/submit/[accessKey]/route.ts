@@ -63,12 +63,12 @@ export async function POST(request: Request, { params }: { params: { accessKey: 
     if (contentType === "application/json") {
       body = JSON.parse(rawBody) as SubmissionBody;
     } else {
-      const params = new URLSearchParams(rawBody);
+      const formParams = new URLSearchParams(rawBody);
       const values: Record<string, unknown> = {};
-      params.forEach((value, key) => {
+      formParams.forEach((value, key) => {
         if (key !== "website" && key !== "access_key" && key !== "subject") values[key] = value;
       });
-      body = { values, website: params.get("website") ?? undefined };
+      body = { values, website: formParams.get("website") ?? undefined };
     }
   } catch {
     return json({ error: "Invalid submission body." }, 400);
