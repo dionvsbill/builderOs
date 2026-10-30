@@ -50,7 +50,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: { s
           {exports?.length ? <div className="settings-history"><strong>Export requests</strong>{exports.map(item=><p key={item.id}>{new Date(item.requested_at).toLocaleString()} <span>{item.status}</span></p>)}</div>:null}
           <div className="settings-legal-links"><Link href="/privacy">Privacy notice</Link><Link href="/terms">Terms of service</Link><Link href="/cookies">Cookie notice</Link><Link href="/acceptable-use">Acceptable use</Link></div>
         </section>
-        <section className="settings-card settings-danger" id="danger"><div className="settings-card-title"><Trash2 size={18}/><div><h3>Delete account</h3><p>Permanent deletion is available after workspace ownership is transferred.</p></div></div><SecurityControls email={user.email ?? ""}/></section>
+        <section className="settings-card settings-danger" id="danger"><div className="settings-card-title"><Trash2 size={18}/><div><h3>Delete account</h3><p>Permanent deletion is available after workspace ownership is transferred.</p></div></div><SecurityControls email={user.email ?? ""} mode="delete"/></section>
         <footer className="settings-footer">BuilderOS account controls · Privacy requests are recorded securely.</footer>
       </section>
     </div>
