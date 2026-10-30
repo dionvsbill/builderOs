@@ -9,7 +9,7 @@ export async function PATCH(request:Request,{params}:{params:{projectId:string;p
  const {data:{user},error:authError}=await supabase.auth.getUser();
  if(authError||!user)return NextResponse.json({error:"Authentication required."},{status:401});
  const body=await request.json().catch(()=>null) as {expectedRevision?:number;document?:{version?:number;children?:SavedBlock[]}}|null;
- if(!body||!Number.isInteger(body.expectedRevision)||!body.document||body.document.version!==1||!Array.isArray(body.document.children))return NextResponse.json({error:"Invalid document payload."},{status:400});
+ if(!body||typeof body.expectedRevision!=="number"||!Number.isInteger(body.expectedRevision)||!body.document||body.document.version!==1||!Array.isArray(body.document.children))return NextResponse.json({error:"Invalid document payload."},{status:400});
  const document=body.document;
  if(document.children.length>200)return NextResponse.json({error:"A page can contain at most 200 blocks."},{status:413});
  let size=0;
