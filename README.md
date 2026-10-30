@@ -4,16 +4,16 @@ BuilderOS is a visual website, form and commerce builder SaaS.
 
 ## Current foundation
 
-The repository now contains a Next.js 14 App Router application and an interactive editor shell. The editor currently supports inserting starter elements, selecting layers, inline text editing, editing text properties, reordering layers, and undo/redo. This is the first implementation slice—not a claim that persistence, publishing, SMTP delivery, billing or commerce are complete.
+The repository contains a Next.js 14 App Router application with Supabase authentication, workspace onboarding, profile/privacy controls, project creation, a sortable visual editor, authenticated cloud autosave, optimistic revision locking, revision snapshots and restore. Publishing, the production form-delivery worker, billing and commerce flows are still under development.
 
 ## Stack
 
 - Next.js 14 / React 18 / TypeScript
 - Tailwind CSS
 - Zustand-ready client state architecture
-- dnd-kit dependencies for the upcoming sortable canvas implementation
-- Supabase planned for authentication, PostgreSQL and storage
-- Nodemailer planned for server-side SMTP delivery
+- dnd-kit sortable canvas with drag reordering
+- Supabase Auth, PostgreSQL, RLS and private avatar storage
+- SMTP delivery architecture documented; production queue worker still to be built
 - Render Node Web Service deployment target
 
 ## Local development
