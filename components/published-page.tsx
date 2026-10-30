@@ -12,7 +12,7 @@ export function PublishedPage({ name, blocks }: { name: string; blocks: Block[] 
   const [busy, setBusy] = useState<Record<string, boolean>>({});
   async function submit(block: Block, form: HTMLFormElement) {
     const content = block.content ?? "";
-    const key = content.match(/accessKey=([^&\\s]+)/)?.[1];
+    const key = content.match(/accessKey=([^&\s]+)/)?.[1];
     const type = content.match(/workflow=([a-z]+)/)?.[1] ?? "custom";
     const id = block.id ?? "form";
     if (!key) { setSent(old => ({ ...old, [id]: "Configure this form with a published BuilderOS access key." })); return; }
