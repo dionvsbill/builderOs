@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 
 type DraftBlock = {
   kind: "heading" | "text" | "button" | "image" | "section";
@@ -8,6 +8,7 @@ type DraftBlock = {
   content: string;
   styles: { align: "left" | "center" | "right"; width: string; opacity: number; radius: number };
 };
+type ExistingBlock = { kind: DraftBlock["kind"]; label: string; content: string; styles?: Partial<DraftBlock["styles"]> };
 type ChatMessage = { role: "user" | "assistant"; content: string };
 type WebLLMEngine = {
   chat: { completions: { create: (args: {
@@ -24,7 +25,7 @@ const MODEL_ID = "Qwen2.5-1.5B-Instruct-q4f16_1-MLC";
 const CDN_URL = "https://esm.run/@mlc-ai/web-llm";
 
 export function AIStudio({ currentBlocks, onApply, onClose }: {
-  currentBlocks: DraftBlock[];
+  currentBlocks: ExistingBlock[];
   onApply: (blocks: DraftBlock[]) => void;
   onClose: () => void;
 }) {
@@ -142,5 +143,5 @@ export function AIStudio({ currentBlocks, onApply, onClose }: {
   </div>;
 }
 
-const buttonStyle: React.CSSProperties = { background: "#1b283a", border: "1px solid #3a4a61", borderRadius: 7, padding: "8px 12px", color: "#cbd8f0", fontSize: 11 };
-const primaryStyle: React.CSSProperties = { background: "#91a8ff", color: "#111827", border: 0, borderRadius: 7, padding: "10px 14px", fontSize: 11, fontWeight: 800, cursor: "pointer" };
+const buttonStyle: CSSProperties = { background: "#1b283a", border: "1px solid #3a4a61", borderRadius: 7, padding: "8px 12px", color: "#cbd8f0", fontSize: 11 };
+const primaryStyle: CSSProperties = { background: "#91a8ff", color: "#111827", border: 0, borderRadius: 7, padding: "10px 14px", fontSize: 11, fontWeight: 800, cursor: "pointer" };
