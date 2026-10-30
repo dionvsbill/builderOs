@@ -1,0 +1,24 @@
+"use client";
+import { useEffect,useState } from "react";
+type Settings={host:string;port:number;secure:boolean;username:string;from_email:string;from_name:string|null;enabled:boolean;passwordConfigured:boolean};
+export function SmtpSettings({projectId}:{projectId:string}){
+ const [data,setData]=useState<Settings>({host:"",port:587,secure:false,username:"",from_email:"",from_name:"",enabled:true,passwordConfigured:false});
+ const [password,setPassword]=useState("");const [busy,setBusy]=useState(false);const [message,setMessage]=useState("");
+ useEffect(()=>{fetch("/api/projects/"+projectId+"/smtp").then(r=>r.json()).then(d=>{if(d.settings)setData(d.settings);}).catch(()=>setMessage("Could not load SMTP settings."));},[projectId]);
+ async function save(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setMessage("");try{const r=await fetch("/api/projects/"+projectId+"/smtp",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,password})});const d=await r.json();if(!r.ok)throw new Error(d.error);setPassword("");setData(v=>({...v,passwordConfigured:true}));setMessage("SMTP configuration encrypted and saved.");}catch(e){setMessage(e instanceof Error?e.message:"Unable to save SMTP.");}finally{setBusy(false);}}
+ async function remove(){if(!window.confirm("Remove this project's SMTP connection?"))return;setBusy(true);try{const r=await fetch("/api/projects/"+projectId+"/smtp",{method:"DELETE"});const d=await r.json();if(!r.ok)throw new Error(d.error);setData(v=>({...v,host:"",username:"",from_email:"",from_name:"",passwordConfigured:false}));setPassword("");setMessage("Project SMTP connection removed.");}catch(e){setMessage(e instanceof Error?e.message:"Unable to remove SMTP.");}finally{setBusy(false);}}
+ const input:React.CSSProperties={width:"100%",padding:11,background:"#0d141e",border:"1px solid #344257",borderRadius:7,color:"#e6edf7",fontSize:12,boxSizing:"border-box"};
+ return <form onSubmit={save} style={{display:"grid",gap:13,maxWidth:700}}>
+  <p style={{fontSize:12,color:"#91a0b5",lineHeight:1.7}}>Each website can use its own SMTP provider. Credentials are encrypted with AES-256-GCM before storage and are never returned to the browser.</p>
+  <label style={label}>SMTP host<input required value={data.host} onChange={e=>setData(v=>({...v,host:e.target.value}))} placeholder="smtp.example.com" style={input}/></label>
+  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}><label style={label}>Port<input type="number" min="1" max="65535" required value={data.port} onChange={e=>setData(v=>({...v,port:Number(e.target.value)}))} style={input}/></label><label style={{...label,display:"flex",alignItems:"center",gap:8,paddingTop:24}}><input type="checkbox" checked={data.secure} onChange={e=>setData(v=>({...v,secure:e.target.checked}))}/> Use implicit TLS (usually port 465)</label></div>
+  <label style={label}>SMTP username<input required value={data.username} onChange={e=>setData(v=>({...v,username:e.target.value}))} style={input}/></label>
+  <label style={label}>SMTP password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder={data.passwordConfigured?"Saved securely — enter only to replace": "SMTP password or app password"} style={input}/></label>
+  <label style={label}>From email<input type="email" required value={data.from_email} onChange={e=>setData(v=>({...v,from_email:e.target.value}))} style={input}/></label>
+  <label style={label}>Sender name<input value={data.from_name??""} onChange={e=>setData(v=>({...v,from_name:e.target.value}))} style={input}/></label>
+  <label style={{...label,display:"flex",alignItems:"center",gap:8}}><input type="checkbox" checked={data.enabled} onChange={e=>setData(v=>({...v,enabled:e.target.checked}))}/> Use this SMTP connection for this website</label>
+  <div style={{display:"flex",gap:9,flexWrap:"wrap"}}><button disabled={busy} style={{border:0,borderRadius:7,background:"#91a8ff",color:"#101827",padding:"11px 16px",fontWeight:800}}> {busy?"Saving…":"Save SMTP settings"}</button>{data.passwordConfigured&&<button type="button" onClick={remove} disabled={busy} style={{border:"1px solid #70414a",background:"#2a1920",color:"#ffbdc4",borderRadius:7,padding:"10px 13px"}}>Remove connection</button>}</div>
+  {message&&<p role="status" style={{fontSize:11,color:"#b8d8c9"}}>{message}</p>}
+ </form>;
+}
+const label:React.CSSProperties={display:"grid",gap:7,fontSize:11,color:"#c7d3e3"};
