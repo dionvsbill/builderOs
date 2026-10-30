@@ -14,8 +14,8 @@ export default async function DashboardPage() {
     .select("workspace_id, role, workspaces(id,name,slug,created_at)")
     .eq("user_id", user.id).order("created_at", { ascending: false });
   const workspaceRows = (memberships ?? []).flatMap((item) => {
-    const workspace = item.workspaces;
-    return workspace && !Array.isArray(workspace) ? [{ ...workspace, role: item.role }] : [];
+    const workspace = item.workspaces as unknown as { id: string; name: string; slug: string; created_at: string } | null;
+    return workspace ? [{ ...workspace, role: item.role }] : [];
   });
   const workspaceIds = workspaceRows.map((workspace) => workspace.id);
   const { data: projects } = workspaceIds.length
