@@ -18,7 +18,7 @@ The repository now contains a Next.js 14 App Router application and an interacti
 
 ## Local development
 
-Requires Node.js >=20.10 and <25.
+Requires Node.js >=22 and <25.
 
 ```bash
 npm install
