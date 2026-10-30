@@ -41,6 +41,9 @@ npm run build
    - `supabase/migrations/0001_initial_workspace_schema.sql`
    - `supabase/migrations/0002_forms_and_delivery.sql`
    - `supabase/migrations/0003_secure_workspace_onboarding.sql`
+   - `supabase/migrations/0004_account_profile_privacy_lifecycle.sql`
+   - `supabase/migrations/0005_allow_deletion_request_resubmission.sql`
+   - `supabase/migrations/0006_security_performance_hardening.sql`\n\nThe connected BuilderOS Supabase project already has migrations 0001–0006 applied. Do not re-run these SQL files on that live project.
 3. Copy `.env.example` to `.env.local`.
 4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project Connect dialog.
 5. In Supabase Authentication URL Configuration, set the Site URL to your app origin and add `http://localhost:3000/auth/callback`, `http://localhost:3000/reset-password`, plus your production `https://YOUR-RENDER-DOMAIN/auth/callback` and `https://YOUR-RENDER-DOMAIN/reset-password` to the allowed redirect URLs.
