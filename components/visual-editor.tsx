@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AIStudio } from "@/components/ai-studio";
 import {
   DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors
 } from "@dnd-kit/core";
@@ -70,6 +71,7 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
   const [editingName, setEditingName] = useState(false);
   const [saved, setSaved] = useState(true);
   const [preview, setPreview] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const [publishBusy, setPublishBusy] = useState(false);
   const [publishUrl, setPublishUrl] = useState("");
   const [publishError, setPublishError] = useState("");
@@ -226,6 +228,16 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
     } catch (error) { setPublishError(error instanceof Error ? error.message : "Publishing failed."); }
     finally { setPublishBusy(false); }
   }
+  function applyAIGeneratedBlocks(generated: Array<{ kind: BlockKind; label: string; content: string; styles: Block["styles"] }>) {
+    if (!window.confirm(`Replace the current page with ${generated.length} AI-generated elements? Your previous version remains available through Undo and cloud revision history.`)) return;
+    const next = generated.map((block) => ({ ...block, id: makeId() }));
+    commit(next);
+    setSelected(next[0]?.id ?? "");
+    setDevice("desktop");
+    setPreview(false);
+    setAiOpen(false);
+  }
+
   function onDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -246,10 +258,11 @@ export default function Home({ projectId, pageId, initialRevision = 1, initialBl
         <button className="icon-button" aria-label="Undo" onClick={undo} disabled={!history.length}><Undo2 size={17} /></button>
         <button className="icon-button" aria-label="Redo" onClick={redo} disabled={!future.length}><Redo2 size={17} /></button><span className="top-divider" />
         <button className="icon-button" aria-label="Help"><CircleHelp size={17} /></button><button className="icon-button" aria-label="Notifications"><Bell size={17} /></button>
-        <button className="avatar">B</button>{projectId && <button className="icon-button" aria-label="Version history" onClick={toggleHistory}><History size={17}/></button>}<button className="preview-button" onClick={() => setPreview(!preview)}><Eye size={15} />{preview ? "Edit" : "Preview"}</button>
+        <button className="avatar">B</button>{projectId && <button className="icon-button" aria-label="Version history" onClick={toggleHistory}><History size={17}/></button>}<button className="preview-button" onClick={() => setAiOpen(true)}><Sparkles size={15} />AI Studio</button><button className="preview-button" onClick={() => setPreview(!preview)}><Eye size={15} />{preview ? "Edit" : "Preview"}</button>
         <button className="publish-button" onClick={publishSite} disabled={!projectId || publishBusy}><Globe2 size={15} />{publishBusy ? "Publishing…" : "Publish"}</button>{publishUrl && <a href={publishUrl} target="_blank" rel="noreferrer" style={{fontSize:10,color:"#9edfc7",whiteSpace:"nowrap"}}>Live site ↗</a>}{publishError && <span role="alert" style={{fontSize:10,color:"#ffadb4"}}>{publishError}</span>}
       </div>
     </header>
+    {aiOpen && <AIStudio currentBlocks={blocks} onApply={applyAIGeneratedBlocks} onClose={() => setAiOpen(false)} />}
     {historyOpen && <div className="revision-popover"><div className="revision-popover-head"><strong>Version history</strong><button type="button" onClick={()=>setHistoryOpen(false)} aria-label="Close history"><X size={15}/></button></div>{historyLoading?<p>Loading revisions…</p>:revisions.length===0?<p>No saved revisions yet. Make a change to create the first version.</p>:<div className="revision-list">{revisions.map(item=><div className="revision-item" key={item.id}><span><strong>Version {item.revision}</strong><small>{new Date(item.created_at).toLocaleString()}</small></span><button type="button" onClick={()=>restoreRevision(item.id)} disabled={historyLoading||item.revision===revision}>Restore</button></div>)}</div>}{restoreError&&<p className="revision-error">{restoreError}</p>}</div>}
     <div className="workspace">
       <aside className={`left-panel ${mobilePanel === "elements" ? "mobile-open" : ""}`}>
