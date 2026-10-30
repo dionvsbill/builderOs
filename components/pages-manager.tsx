@@ -1,0 +1,19 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+type Page={id:string;name:string;path:string;revision:number};
+export function PagesManager({projectId,initialPages}:{projectId:string;initialPages:Page[]}){
+ const [pages,setPages]=useState(initialPages);const [name,setName]=useState("About");const [path,setPath]=useState("about");const [message,setMessage]=useState("");const [busy,setBusy]=useState(false);
+ async function create(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setMessage("");try{const r=await fetch("/api/projects/"+projectId+"/pages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,path})});const d=await r.json();if(!r.ok)throw new Error(d.error);setPages(v=>[...v,d.page]);setName("New page");setPath("new-page");setMessage("Page created. Open it in the visual editor.");}catch(e){setMessage(e instanceof Error?e.message:"Unable to create page.");}finally{setBusy(false);}}
+ async function remove(page:Page){if(page.path==="/")return;if(!window.confirm("Delete "+page.name+"? This also removes its published version the next time you publish."))return;setBusy(true);try{const r=await fetch("/api/projects/"+projectId+"/pages/"+page.id,{method:"DELETE"});const d=await r.json();if(!r.ok)throw new Error(d.error);setPages(v=>v.filter(p=>p.id!==page.id));setMessage("Page deleted.");}catch(e){setMessage(e instanceof Error?e.message:"Unable to delete page.");}finally{setBusy(false);}}
+ return <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(260px,330px)",gap:18,marginTop:24}}>
+  <section style={card}><h2 style={{fontSize:15,margin:"0 0 13px"}}>Website pages</h2>{pages.map(page=><div key={page.id} style={{display:"flex",alignItems:"center",gap:12,padding:"13px 0",borderTop:"1px solid #293342"}}><span style={{flex:1,minWidth:0}}><strong style={{display:"block",fontSize:12}}>{page.name}</strong><small style={{fontSize:10,color:"#91a0b5"}}>{page.path} · v{page.revision}</small></span><Link href={"/editor/"+projectId+"?page="+page.id} style={action}>Edit page</Link>{page.path!=="/"&&<button disabled={busy} onClick={()=>remove(page)} style={danger}>Delete</button>}</div>)}</section>
+  <form onSubmit={create} style={card}><h2 style={{fontSize:15,margin:"0 0 12px"}}>Add a page</h2><label style={label}>Page name<input required value={name} onChange={e=>setName(e.target.value)} style={input}/></label><label style={{...label,marginTop:12}}>URL path<input required value={path} onChange={e=>setPath(e.target.value)} placeholder="about" style={input}/><small style={{color:"#8290a3"}}>Use a short path without the leading slash.</small></label><button disabled={busy} style={primary}>{busy?"Working…":"Create page"}</button>{message&&<p role="status" style={{fontSize:11,color:"#b8d8c9",lineHeight:1.6}}>{message}</p>}</form>
+ </div>;
+}
+const card:React.CSSProperties={background:"#111923",border:"1px solid #2b3747",borderRadius:10,padding:18};
+const input:React.CSSProperties={width:"100%",padding:10,background:"#0d141e",border:"1px solid #344257",borderRadius:6,color:"#e6edf7",fontSize:11,boxSizing:"border-box"};
+const label:React.CSSProperties={display:"grid",gap:7,fontSize:11,color:"#c7d3e3"};
+const primary:React.CSSProperties={marginTop:15,padding:"10px 13px",background:"#91a8ff",color:"#101827",border:0,borderRadius:6,fontWeight:800,fontSize:11};
+const action:React.CSSProperties={fontSize:10,color:"#b9caff",textDecoration:"none",border:"1px solid #3a4a61",borderRadius:6,padding:"7px 9px"};
+const danger:React.CSSProperties={fontSize:10,color:"#ffbdc4",background:"#2a1920",border:"1px solid #70414a",borderRadius:6,padding:"7px 9px"};
