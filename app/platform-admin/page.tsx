@@ -8,8 +8,7 @@ export default async function PlatformAdminPage(){
  const auth=await createClient();
  const {data:{user},error}=await auth.auth.getUser();
  if(error||!user) redirect("/login");
- const {data:isPlatformAdmin,error:roleError}=await auth.rpc("is_current_user_platform_admin");
- if(roleError||!isPlatformAdmin||!user.email_confirmed_at) redirect("/dashboard");
+ if(user.app_metadata?.builderos_role!=="super_admin"||!user.email_confirmed_at) redirect("/dashboard");
  const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
  const secret=process.env.SUPABASE_SERVICE_ROLE_KEY;
  if(!url||!secret) return <main className="platform-admin-shell"><header><Link href="/dashboard"><Layers3/> BuilderOS</Link></header><section><ShieldCheck/><h1>Super administrator</h1><p>Set the private SUPABASE_SERVICE_ROLE_KEY in your hosting environment to enable platform metrics.</p></section></main>;
