@@ -20,9 +20,11 @@ export async function POST(request: Request, { params }: { params: { type: strin
   if ((request.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase() !== "application/json") return json({ error: "Send a JSON request body." }, 415);
   const raw = await request.text();
   if (raw.length > 65536) return json({ error: "Submission is too large." }, 413);
-  let body: { values?: Record<string, unknown>; website?: string } | null = null;
-  try { body = JSON.parse(raw) as typeof body; } catch { return json({ error: "Invalid JSON body." }, 400); }
-  if (!body || !body.values || typeof body.values !== "object" || Array.isArray(body.values)) return json({ error: "Provide a values object." }, 400);
+  let parsed: unknown;
+  try { parsed = JSON.parse(raw); } catch { return json({ error: "Invalid JSON body." }, 400); }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return json({ error: "Provide a values object." }, 400);
+  const body = parsed as { values?: Record<string, unknown>; website?: string };
+  if (!body.values || typeof body.values !== "object" || Array.isArray(body.values)) return json({ error: "Provide a values object." }, 400);
   if (body.website) return json({ success: true, message: "Request accepted." });
 
   const admin = createAdminClient();
