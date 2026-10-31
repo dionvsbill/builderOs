@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime="nodejs";
-type BlockKind="heading"|"text"|"button"|"image"|"section";
+type BlockKind="heading"|"text"|"button"|"image"|"section"|"form";
 type SavedBlock={id:string;kind:BlockKind;label:string;content:string;styles?:{align?:"left"|"center"|"right";width?:string;opacity?:number;radius?:number}};
 export async function PATCH(request:Request,{params}:{params:{projectId:string;pageId:string}}){
  const supabase=await createClient();
@@ -15,7 +15,7 @@ export async function PATCH(request:Request,{params}:{params:{projectId:string;p
  if(children.length>200)return NextResponse.json({error:"A page can contain at most 200 blocks."},{status:413});
  let size=0;
  for(const block of children){
-  if(!block||typeof block.id!=="string"||block.id.length>80||typeof block.kind!=="string"||!["heading","text","button","image","section"].includes(block.kind)||typeof block.content!=="string"||block.content.length>10000||typeof block.label!=="string"||block.label.length>100)return NextResponse.json({error:"One or more page blocks are invalid."},{status:400});
+  if(!block||typeof block.id!=="string"||block.id.length>80||typeof block.kind!=="string"||!["heading","text","button","image","section","form"].includes(block.kind)||typeof block.content!=="string"||block.content.length>10000||typeof block.label!=="string"||block.label.length>100)return NextResponse.json({error:"One or more page blocks are invalid."},{status:400});
   size+=block.content.length;
   if(block.styles&&((block.styles.align&&!["left","center","right"].includes(block.styles.align))||(block.styles.opacity!==undefined&&(!Number.isFinite(block.styles.opacity)||block.styles.opacity<0||block.styles.opacity>100))||(block.styles.radius!==undefined&&(!Number.isFinite(block.styles.radius)||block.styles.radius<0||block.styles.radius>100))))return NextResponse.json({error:"A block contains invalid style values."},{status:400});
  }

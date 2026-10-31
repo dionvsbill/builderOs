@@ -31,13 +31,13 @@ export async function POST(request:Request){
    const rows=entries.map(([key,value])=>"<tr><th style=\"text-align:left;padding:8px;border-bottom:1px solid #ddd\">"+escapeHtml(key)+"</th><td style=\"padding:8px;border-bottom:1px solid #ddd\">"+escapeHtml(String(value))+"</td></tr>").join("");
    try{
     const info=await transport.sendMail({from:smtp.from,to:job.recipient,subject:template.subject??"New form submission",text:entries.map(([key,value])=>key+": "+String(value)).join("\\n"),html:"<div style=\"font-family:Arial,sans-serif;max-width:680px;margin:auto\"><h2>New form submission</h2><p>"+escapeHtml(template.form_name??"Your form")+"</p><table style=\"width:100%;border-collapse:collapse\">"+rows+"</table><p style=\"color:#777;font-size:12px\">Sent by BuilderOS</p></div>"});
-    await admin.from("email_delivery_jobs").update({status:"sent",sent_at:new Date().toISOString(),provider_message_id:info.messageId,last_error:null}).eq("id",job.id);
+    await admin.from("email_delivery_jobs").update({status:"sent",sent_at:new Date().toISOString(),provider_message_id:info.messageId,last_error:null,claimed_at:null}).eq("id",job.id);
     sent++;
    }finally{transport.close();}
   }catch(cause){
    const message=cause instanceof Error?cause.message.slice(0,1000):"SMTP delivery failed";
    const terminal=job.attempts>=6;
-   await admin.from("email_delivery_jobs").update({status:terminal?"failed":"retry",next_attempt_at:new Date(Date.now()+Math.min(3600,30*(2**Math.max(0,job.attempts-1)))*1000).toISOString(),last_error:message}).eq("id",job.id);
+   await admin.from("email_delivery_jobs").update({status:terminal?"failed":"retry",next_attempt_at:new Date(Date.now()+Math.min(3600,30*(2**Math.max(0,job.attempts-1)))*1000).toISOString(),last_error:message,claimed_at:null}).eq("id",job.id);
    if(terminal)failed++;else retried++;
   }
  }
